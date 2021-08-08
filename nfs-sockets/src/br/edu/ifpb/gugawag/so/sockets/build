@@ -1,0 +1,1 @@
+rm -r br;javac -d . *.java
