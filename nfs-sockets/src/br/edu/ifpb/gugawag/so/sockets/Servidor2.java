@@ -36,32 +36,26 @@ public class Servidor2 {
             try {
                 switch(cmd) {
                     case "create": {
-                        if (splittedMessage.length >= 2) {
-                            String arg = splittedMessage[1];
-                            Path p = Paths.get(DIR + "/"+arg);
-                            Files.createDirectory(p);
-                            sockOut.writeUTF("OK");
-                        }
+                        String arg = splittedMessage[1];
+                        Path p = Paths.get(DIR + "/"+arg);
+                        Files.createDirectory(p);
+                        sockOut.writeUTF("OK");
                         break;
                     }
                     case "remove": {
-                        if (splittedMessage.length >= 2) {
-                            String arg = splittedMessage[1];
-                            Path p = Paths.get(DIR + "/"+arg);
-                            Files.delete(p);
-                            sockOut.writeUTF("OK");
-                        }
+                        String arg = splittedMessage[1];
+                        Path p = Paths.get(DIR + "/"+arg);
+                        Files.delete(p);
+                        sockOut.writeUTF("OK");
                         break;
                     }
                     case "rename": {
-                        if (splittedMessage.length >= 3) {
-                            String arg1 = splittedMessage[1];
-                            String arg2 = splittedMessage[2];
-                            Path p1 = Paths.get(DIR +"/" + arg1);
-                            Path p2 = Paths.get(DIR +"/" + arg2);
-                            Files.move(p1, p2);
-                            sockOut.writeUTF("OK");
-                        }
+                        String arg1 = splittedMessage[1];
+                        String arg2 = splittedMessage[2];
+                        Path p1 = Paths.get(DIR +"/" + arg1);
+                        Path p2 = Paths.get(DIR +"/" + arg2);
+                        Files.move(p1, p2);
+                        sockOut.writeUTF("OK");
                         break;
                     }
                     case "readdir": {
@@ -69,6 +63,7 @@ public class Servidor2 {
                         if (splittedMessage.length == 2) {
                             subDir = splittedMessage[1];
                         }
+
                         String response = "";
                         Path path = Paths.get(DIR+"/"+subDir);
                         Stream<Path> stream = Files.list(path);
