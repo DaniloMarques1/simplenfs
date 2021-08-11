@@ -2,10 +2,8 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"net"
-	"os"
 	"strings"
 )
 
@@ -48,74 +46,27 @@ func handleConnection(conn net.Conn) {
 
 		splittedMessage := readMessage(rawMessage)
 		cmd := splittedMessage[0] // will be the nfs command
+		var command CommandStrategy
 		switch cmd {
 		case CREATE:
-			if len(splittedMessage) >= 2 {
-				arg := splittedMessage[1]
-				if arg != "" {
-					err := os.Mkdir(arg, os.ModePerm)
-					if err != nil {
-						log.Printf("Error creating the dir %v\n", err)
-						conn.Write([]byte("ERR\n"))
-					} else {
-						conn.Write([]byte("OK\n"))
-					}
-				}
-			}
+			command = NewCreateCommand(splittedMessage)
 		case REMOVE:
-			log.Println("Removendo....")
-			if len(splittedMessage) >= 2 {
-				arg := splittedMessage[1]
-				if arg != "" {
-					err := os.Remove(arg)
-					if err != nil {
-						log.Printf("Error conn %v\n", err)
-						conn.Write([]byte("ERROR\n"))
-					} else {
-						conn.Write([]byte("OK\n"))
-					}
-				}
-			}
+			command = NewRemoveCommand(splittedMessage)
 		case RENAME:
-			if len(splittedMessage) >= 3 {
-				arg1 := splittedMessage[1]
-				arg2 := splittedMessage[2]
-				if arg1 != "" && arg2 != "" {
-					err := os.Rename(arg1, arg2)
-					if err != nil {
-						log.Printf("Error conn %v\n", err)
-						conn.Write([]byte("ERROR\n"))
-					} else {
-						conn.Write([]byte("OK\n"))
-					}
-				}
-			}
+			command = NewRenameCommand(splittedMessage)
 		case READDIR:
-			arg := "."
-			if len(splittedMessage) >= 2 {
-				arg = splittedMessage[1]
-			}
-
-			entries, err := os.ReadDir(arg)
-			if err != nil {
-				log.Printf("Error reading the given directory%v\n")
-				conn.Write([]byte("ERROR\n"))
-			} else {
-				var response string
-				for idx, file := range entries {
-					response += fmt.Sprintf("%v- %v;", idx+1, file.Name())
-					log.Println(file.Name()) // this is what i should return
-				}
-
-				log.Println(response)
-				conn.Write([]byte(response+"\n"))
-			}
-
+			command = NewReadDirCommand(splittedMessage)
 		case EXIT:
 			conn.Write([]byte("CLOSED\n"))
 			conn.Close()
 			return
+		default:
+			conn.Write([]byte("ERR\n"))
+			continue
 		}
+
+		response, _ := command.Execute()
+		conn.Write([]byte(response))
 	}
 
 }

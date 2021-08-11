@@ -33,7 +33,6 @@ func main() {
 				fmt.Printf("Error scanning %v\n", err)
 			}
 
-			log.Printf("%v\n", message)
 			_, err := conn.Write([]byte(message + "\n")) // @@@
 			if err != nil {
 				log.Fatalf("Error writing...%v\n", err) // @@@
